@@ -1,5 +1,5 @@
 ---
-title: "Testing"
+title: "Graphs"
 author: "Asta Kvedaraitė"
 date: "5/14/2020"
 output: html_document
@@ -14,10 +14,69 @@ install.packages("treemap")
 install.packages("d3treeR")
 install.packages("hrbrthemes")
 ```
-
+# Dendrogram 
 ```{r}
 sample <- read.csv("../../2darbas/output/correctedSample.csv")
 beta <- readRDS("../../2darbas/output/betab.rds")
+anno <- readRDS("../../Komanda/output/annotation.rds")
+
+head(sample)
+head(as.data.frame(anno))
+head(as.data.frame(beta))
+
+unique(sample$sample_plate)
+chr8 <- anno[anno$chr == "chr8",]
+chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
+nrow(chr8)
+as.data.frame(chr8body)
+
+
+plate1 <- sample[sample$sample_plate == " Plate 1",]
+plate1
+nrow(plate1)
+data <- beta[chr8body$Name, plate1$sample_id]
+nrow(data)
+ncol(data)
+#data has chr8 and Plate_1
+as.data.frame(data)
+```
+
+```{r}
+
+hc <- hclust(dist(data))
+dhc <- as.dendrogram(hc)
+
+# set the margin
+par(mar=c(4,4,2,2))
+
+# Plot the Second group
+plot(dhc[[2]] , main= "zoom on a part of the dendrogram")
+
+plot(hc, labels = FALSE)
+
+```
+```{r}
+#if(!require("rlang"))install.packages("rlang")
+#if(!require("ggraph"))install.packages("ggraph")
+
+file.edit(file.path("~", ".Rprofile"))
+install.packages("rlang")
+
+library(ggraph)
+if(!require("igraph"))install.packages("igraph")
+library(igraph)
+library(tidyverse)
+theme_set(theme_void())
+
+
+
+ggraph(data, layout = 'dendrogram', circular = FALSE) + 
+  geom_edge_diagonal() 
+
+```
+
+
+
 
 #RIDGELINE PLOT
 
@@ -53,10 +112,9 @@ data %>%
     xlab("") +
     ylab("Assigned Probability (%)")
 
-```
 
 
-```{r}
+
 
 as.data.frame(beta)
 head(sample)
@@ -69,5 +127,3 @@ treemap::treemap(test,
                  vSize = "sample.age"
             )
 
-
-```
