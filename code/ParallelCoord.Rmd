@@ -1,0 +1,189 @@
+---
+title: "Graphs"
+author: "Asta Kvedaraitė"
+date: "5/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#if(!require("treemap"))install.packages("treemap")
+#if(!require("d3treeR"))install.packages("d3treeR")
+#if(!require("hrbrthemes"))install.packages("hrbrthemes")
+```
+# Dendrogram 
+```{r}
+sample <- read.csv("../../2darbas/output/correctedSample.csv")
+beta <- readRDS("../../2darbas/output/betab.rds")
+anno <- readRDS("../../Komanda/output/annotation.rds")
+
+head(sample)
+head(as.data.frame(anno))
+head(as.data.frame(beta))
+
+unique(sample$sample_plate)
+chr8 <- anno[anno$chr == "chr8",]
+chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
+nrow(chr8)
+as.data.frame(chr8body)
+chr8bodyI <- chr8body[chr8body$Type == "I",]
+as.data.frame(chr8bodyI)
+plate1 <- sample[sample$sample_plate == " Plate 1",]
+plate1
+nrow(plate1)
+data <- beta[chr8bodyI$Name, plate1$sample_id]
+nrow(data)
+ncol(data)
+#data has chr8 and Plate_1
+as.data.frame(data)
+```
+
+```{r}
+
+hc <- hclust(dist(data))
+dhc <- as.dendrogram(hc)
+
+# set the margin
+par(mar=c(4,4,2,2))
+
+# Plot the Second group
+plot(dhc[[2]] , main= "zoom on a part of the dendrogram")
+specific_leaf <- dhc[[2]][[1]][[2]]
+plot(specific_leaf)
+
+plot(hc, labels = FALSE)
+
+```
+```{r}
+if(!require("GGally"))install.packages("GGally")
+library(GGally)
+library(ggplot2)
+library(hrbrthemes)
+library(moduleColor)
+
+
+tm <- matrix(nrow = nrow(data), ncol = 2)
+tm[1:5, 1:2]
+for (i in 1:nrow(data)){
+    mean <- mean(as.numeric(data[i,]))
+    tm[i,] <- c(rownames(data)[i], mean)
+}
+tm <- tm[order(tm[,2], decreasing = TRUE),]
+
+tdata <- t(data[tm[1:100,1],])
+tdata <- as.data.frame(tdata)
+tdata$status <- plate1$sample
+tdata
+#for (i in 1:ncol(tdata)){
+#  if (as.character(tdata$status[i]) == "Control") {
+#    tdata$stnum[i] <- 2 
+#  }else {
+#    tdata$stnum[i] <- 4 
+#  }
+#}
+
+#typeof(plate1$sample)
+#as.character(plate1$sample)
+ggparcoord(tdata,
+    columns = 1:(ncol(tdata)-1), groupColumn = ncol(tdata),
+    scale="uniminmax",
+     showPoints = TRUE
+    )
+```
+
+
+#So if I Want to color each leaf of the Tree, I have to change the attribute of each leaf. This can be done using the dendrapply function. So I create a function that # # add 3 attributes to the leaf : one for the color (“lab.col”) ,one for the font “lab.font” and one for the size (“lab.cex”).
+i=0
+colLab<<-function(n){
+    if(is.leaf(n)){
+       #I take the current attributes
+        a=attributes(n)
+        
+        #I deduce the line in the original data, and so the treatment and the specie.
+        ligne=match(attributes(n)$label,data[,1])
+        treatment=data[ligne,3];
+            if(treatment=="Low"){col_treatment="blue"};if(treatment=="High"){col_treatment="red"}
+        specie=data[ligne,2];
+            if(specie=="dicoccoides"){col_specie="red"};
+        if(specie=="dicoccum"){col_specie="Darkgreen"};if(specie=="durum"){col_specie="blue"}
+        
+         #Modification of leaf attribute
+        attr(n,"nodePar")<-c(a$nodePar,list(cex=1.5,lab.cex=1,pch=20,
+                                            col=col_treatment,lab.col=col_specie,lab.font=1,lab.cex=1))
+      }
+    return(n)
+}
+dL <- dendrapply(dhc, colLab)
+plot(dL , main="structure of the population")
+
+
+if(!require("rlang"))install.packages("rlang")
+library(rlang)
+if(!require("ggraph"))install.packages("ggraph")
+
+library(ggraph)
+if(!require("igraph"))install.packages("igraph")
+library(igraph)
+library(tidyverse)
+theme_set(theme_void())
+
+
+ggraph(data, layout = 'dendrogram', circular = FALSE) + 
+  geom_edge_diagonal() 
+
+
+
+
+
+#RIDGELINE PLOT
+
+# Libraries
+library(tidyverse)
+library(hrbrthemes)
+install.packages("viridis")
+library(viridis)
+
+# Load dataset from github
+data <- read.table("https://raw.githubusercontent.com/zonination/perceptions/master/probly.csv", header=TRUE, sep=",")
+data <- data %>% 
+  gather(key="text", value="value") %>%
+  mutate(text = gsub("\\.", " ",text)) %>%
+  mutate(value = round(as.numeric(value),0)) %>%
+  filter(text %in% c("Almost Certainly","Very Good Chance","We Believe","Likely","About Even", "Little Chance", "Chances Are Slight", "Almost No Chance"))
+
+install.packages("ggridges")
+library(ggridges)
+
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(y=text, x=value,  fill=text)) +
+    geom_density_ridges(alpha=0.6, bandwidth=4) +
+    scale_fill_viridis(discrete=TRUE) +
+    scale_color_viridis(discrete=TRUE) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+
+
+
+
+
+as.data.frame(beta)
+head(sample)
+cor <- 1-cor(beta)
+head(cor)
+test <- data.frame(sample$sample_plate, sample$age)
+
+treemap::treemap(test,
+                 index = c("sample.sample_plate", "sample.age"),
+                 vSize = "sample.age"
+            )
+
