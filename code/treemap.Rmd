@@ -4,9 +4,12 @@ author: "Asta Kvedaraitė"
 date: "6/2/2020"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r echo = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  error = TRUE,
+  echo = FALSE 
+)
 ```
 
 ```{r}
@@ -14,31 +17,36 @@ sample <- read.csv("../../2darbas/output/correctedSample.csv")
 beta <- readRDS("../../2darbas/output/betab.rds")
 anno <- readRDS("../../Komanda/output/annotation.rds")
 
-head(sample)
-head(as.data.frame(anno))
-head(as.data.frame(beta))
+#head(sample)
+#head(as.data.frame(anno))
+#head(as.data.frame(beta))
 
+library("S4Vectors")
+#head(sample)
+#head(as.data.frame(anno))
+#head(as.data.frame(beta))
+print ("unique sample plates :")
 unique(sample$sample_plate)
 chr8 <- anno[anno$chr == "chr8",]
 chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
-nrow(chr8)
-as.data.frame(chr8body)
+print(paste0("nrow chr8 : ",nrow(chr8body)))
+#as.data.frame(chr8body)
 chr8bodyI <- chr8body[chr8body$Type == "I",]
-as.data.frame(chr8bodyI)
+#as.data.frame(chr8bodyI)
+print(paste0("chr8, group - body and type I : row count :",nrow(chr8bodyI)))
 plate1 <- sample[sample$sample_plate == " Plate 1",]
-plate1
-nrow(plate1)
+#plate1
+print(paste0("nrow plate_1 : ", nrow(plate1)))
 data <- beta[chr8bodyI$Name, plate1$sample_id]
-nrow(data)
-ncol(data)
-#data has chr8 and Plate_1
+print(paste0("data row count : ", nrow(data)))
+print(paste0("data column count : ", ncol(data)))
 #as.data.frame(data)
 ```
 
 ```{r}
 
 tm <- matrix(nrow = nrow(data), ncol = 2)
-tm[1:5, 1:2]
+#tm[1:5, 1:2]
 for (i in 1:nrow(data)){
     mean <- mean(as.numeric(data[i,]))
     tm[i,] <- c(rownames(data)[i], mean)
@@ -48,7 +56,7 @@ tm <- tm[order(tm[,2], decreasing = TRUE),]
 tdata <- t(data[tm[1:100,1],])
 tdata <- as.data.frame(tdata)
 #tdata$status <- plate1$sample
-tdata
+#tdata
 ```
 
 
@@ -61,11 +69,11 @@ library(matrixStats)
 tdat <- data.frame(sex = plate1$sex,sample = plate1$sample, 
                    age = plate1$age, median = rowMedians(as.matrix(tdata)))
 
-treemap(tdat,
+p<- treemap(tdat,
             index=c("sex", "sample", "age"),
             vSize= "median",
             type="index",
-        align.labels=list(
+            align.labels=list(
               c("center", "center"), 
               c("right", "bottom")
             )  
@@ -82,17 +90,7 @@ library(d3treeR)
  
 # dataset
 # basic treemap
-p <- treemap(tdat,
-            index=c("sex", "sample", "age"),
-            vSize= "median",
-            type="index",
-            palette = "Set2",
-            bg.labels=c("white"),
-            align.labels=list(
-              c("center", "center"), 
-              c("right", "bottom")
-            )  
-          )            
+           
  
 # make it interactive ("rootname" becomes the title of the plot):
 d3tree2( p ,  rootname = "General" )
