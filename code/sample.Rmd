@@ -1,0 +1,84 @@
+---
+title: "sample"
+author: "Asta Kvedaraitė"
+date: "6/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data <- read.csv("../../2darbas/input/GSE125895_samplekey.csv", as.is = TRUE)
+
+#Remove unnecessary columns
+data <- data[-c(3:5,7,24,26,28,29,32:34,36:46,49)]
+
+names(data)[names(data) == "title"] <- "sample_name"
+data$sample_name <- gsub("sample_plate:", "", data$sample_name)
+
+names(data)[names(data) == "geo_accession"] <- "slide"
+
+
+names(data)[names(data) == "characteristics_ch1"] <- "sample_plate"
+data$sample_plate <- gsub("sample_plate:", "", data$sample_plate)
+
+names(data)[names(data) == "characteristics_ch1.2"] <- "brNum"
+data$brNum <- gsub("brnum: ", "", data$brNum)
+
+names(data)[names(data) == "characteristics_ch1.3"] <- "tissue"
+data$tissue <- gsub("brnum: ", "", data$tissue)
+
+names(data)[names(data) == "characteristics_ch1.4"] <- "tissue_region"
+data$tissue_region <- gsub("tissue region: ", "", data$tissue_region)
+
+names(data)[names(data) == "characteristics_ch1.5"] <- "sample"
+data$sample <- gsub("disease state \\(dx\\): ", "", data$sample)
+
+
+names(data)[names(data) == "characteristics_ch1.6"] <- "age"
+data$age <- gsub("age: ", "", data$age)
+data$age <- as.integer(as.numeric(data$age))
+
+names(data)[names(data) == "characteristics_ch1.7"] <- "sex"
+data$sex <- gsub("Sex: ", "", data$sex)
+
+names(data)[names(data) == "characteristics_ch1.8"] <- "race"
+data$race <- gsub("race: ", "", data$race)
+
+names(data)[names(data) == "characteristics_ch1.9"] <- "negcontrol_pc1"
+data$negcontrol_pc1 <- gsub("negcontrol_pc1: ", "", data$negcontrol_pc1)
+
+names(data)[names(data) == "characteristics_ch1.10"] <- "negcontrol_pc2"
+data$negcontrol_pc2 <- gsub("negcontrol_pc2: ", "", data$negcontrol_pc2)
+
+names(data)[names(data) == "characteristics_ch1.11"] <- "neun_pos"
+data$neun_pos <- gsub("neun_pos: ", "", data$neun_pos)
+
+names(data)[names(data) == "characteristics_ch1.12"] <- "snppc1"
+data$snppc1 <- gsub("snppc1: ", "", data$snppc1)
+
+names(data)[names(data) == "characteristics_ch1.1"] <- "Array"
+data$Array <- gsub("sentrix_position: ", "", data$Array)
+
+data$sample_id <- gsub("ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM3584nnn/.*/suppl/","", data$supplementary_file.1)
+data$sample_id <- gsub("_Red.idat.gz","", data$sample_id)
+names(data)[names(data) == "supplementary_file"] <- "Basename"
+
+baseDir<- file.path("C:/Users/asta1/Desktop/stud/6sem/biomeds/2darbas","input","GSE125895","supplement", "GSE125895_idat","/")
+data$Basename <- gsub("ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM3584nnn/.*/suppl/", baseDir, data$Basename)
+data$Basename <- gsub("_Red.idat.gz|_Grn.idat.gz", "", data$Basename)
+#head(data$Basename)
+
+data$sentrix_id <- sapply(strsplit(basename(data$supplementary_file.1), "_"), "[", 2)
+
+beta <- readRDS("../../Komanda/output/beta.rds")
+n <- colnames(beta)
+
+data <- data[match(n, data$sample_id),]
+
+head(data)
+
+write.csv(data, "../output/sampleKey.csv")
+```

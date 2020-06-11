@@ -2,7 +2,9 @@
 title: "Graphs"
 author: "Asta Kvedaraitė"
 date: "5/14/2020"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 ```{r echo = FALSE, message=FALSE}
 knitr::opts_chunk$set(
@@ -76,7 +78,7 @@ plot(dhc[[1]], main= "zoom on the left")
 plot(dhc[[1]][[2]], main= "zoom on the right")
 plot(dhc[[1]][[2]][[2]],  main= "zoom on the right")
 plot(dhc[[1]][[2]][[2]][[2]] , main= "zoom on the right")
-
+par(mfrow = c(1, 1))
 ```
 
 

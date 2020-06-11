@@ -1,0 +1,29 @@
+---
+title: "Venn"
+author: "Asta Kvedaraitė"
+date: "6/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data <- readRDS("../../Komanda/output/beta.rds")
+anno <- readRDS("../../Komanda/output/annotation.rds")
+sample <- read.csv("../../kursinis/output/sampleKey.csv",  as.is = TRUE)
+
+dim(data)
+dim(anno)
+dim(sample)
+
+unique(sample$tissue_region)
+```
+
+
+```{r}
+
+
+
+```
