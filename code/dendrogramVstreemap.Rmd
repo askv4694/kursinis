@@ -21,102 +21,102 @@ knitr::opts_chunk$set(
 ```
 # Dendrogram 
 ```{r}
-sample <- read.csv("../../2darbas/output/correctedSample.csv")
-beta <- readRDS("../../2darbas/output/betab.rds")
+sample <- read.csv("../output/sampleKey.csv")
+beta <- readRDS("../../Komanda/output/betab.rds")
 anno <- readRDS("../../Komanda/output/annotation.rds")
-
-#head(sample)
-#head(as.data.frame(anno))
-#head(as.data.frame(beta))
-
 library("S4Vectors")
-#head(sample)
-#head(as.data.frame(anno))
-#head(as.data.frame(beta))
-print ("unique sample plates :")
-unique(sample$sample_plate)
-chr8 <- anno[anno$chr == "chr8",]
-chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
-print(paste0("nrow chr8 : ",nrow(chr8body)))
-#as.data.frame(chr8body)
-chr8bodyI <- chr8body[chr8body$Type == "I",]
-#as.data.frame(chr8bodyI)
-print(paste0("chr8, group - body and type I : row count :",nrow(chr8bodyI)))
-plate1 <- sample[sample$sample_plate == " Plate 1",]
-#plate1
-print(paste0("nrow plate_1 : ", nrow(plate1)))
-data <- beta[chr8bodyI$Name, plate1$sample_id]
-print(paste0("data row count : ", nrow(data)))
-print(paste0("data column count : ", ncol(data)))
-#as.data.frame(data)
+
+sample
+
 ```
 
 ```{r}
-
-tm <- matrix(nrow = nrow(data), ncol = 2)
-#tm[1:5, 1:2]
-for (i in 1:nrow(data)){
-    mean <- mean(as.numeric(data[i,]))
-    tm[i,] <- c(rownames(data)[i], mean)
-}
-tm <- tm[order(tm[,2], decreasing = TRUE),]
-
-tdata <- t(data[tm[1:100,1],])
-tdata <- as.data.frame(tdata)
-tdata$status <- plate1$sample
-#tdata
-
-hc <- hclust(dist(tdata))
-dhc <- as.dendrogram(hc)
-plot(hc, labels = FALSE)
-
-# set the margin
-par(mar=c(4,4,2,2))
-
-# Plot the Second group
-plot(dhc[[1]], main= "zoom on the left")
-plot(dhc[[1]][[2]], main= "zoom on the right")
-plot(dhc[[1]][[2]][[2]],  main= "zoom on the right")
-plot(dhc[[1]][[2]][[2]][[2]] , main= "zoom on the right")
-par(mfrow = c(1, 1))
+case <- sample[sample$sample == "Alzheimer",]
+#case
+caseM <- case[case$sex == "M",]
+#caseM
+#unique(as.character(caseM$source_name_ch1))
+#caseMnames <- caseM$sample_id
 ```
 
+
+  
 
 ```{r}
 #So if I Want to color each leaf of the Tree, I have to change the attribute of each leaf. This can be done using the dendrapply function. So I create a function that # # add 3 attributes to the leaf : one for the color (“lab.col”) ,one for the font “lab.font” and one for the size (“lab.cex”).
-i=0
-last <- ncol(tdata)
-colLab<<-function(n){
-    if(is.leaf(n)){
-        
-        #I take the current attributes
-        a=attributes(n)
-        
-        #I deduce the line in the original data, and so the treatment and the specie.
-        #print(as.character(rownames(tdata)));
-        #print(paste0("a : " , a$label, " ", i));
-        ligne <- match(attributes(n)$label,rownames(tdata))
-        #print(paste0("tdata : ", tdata[ligne,last]))
-        #print(paste0("ligne : ", ligne));
-        #print(as.character(tdata[ligne,last]))
-        control <- as.character(tdata[ligne,last]);
-        #print(control)
-        #print(paste0("control : ", control));
-        if(control=="Control"){col_con="blue"};
-        if(control=="Alzheimer"){col_con="red"};
-        
-        #Modification of leaf attribute
-        attr(n,"nodePar")<-c(a$nodePar,list(cex=1.5,lab.cex=1,pch=20,col=col_con, 
-                                            lab.col = col_con,lab.font=1,lab.cex=1))
-        }
-    return(n)
+plotcase<- function(case, size){
+  casenames <- case$sample_id
+  betaCase <- beta[, casenames]
+  #head(betaCase)
+  colnames(betaCase) <- case$geo_accession
+  
+  i=0
+  tdata <- t(betaCase)
+  tdata <- as.data.frame(tdata)
+  #dim(tdata)
+  tdata$loc <- case$tissue_region
+  #tdata
+  
+  
+  last <- ncol(tdata)
+  
+  colLab<<-function(n){
+      if(is.leaf(n)){
+          
+          #I take the current attributes
+          a=attributes(n)
+          
+          #I deduce the line in the original data, and so the treatment and the specie.
+          ligne <- match(attributes(n)$label,rownames(tdata))
+          control <- as.character(tdata[ligne,last]);
+          
+          if(control=="CRB"){col_con="blue"};
+          if(control=="DLPFC"){col_con="red"};
+          if(control=="ERC"){col_con="orange"};
+          if(control=="HIPPO"){col_con="green"};
+          
+          attr(n,"nodePar")<-c(a$nodePar,list(cex=1.5,lab.cex=1,pch=20,col=col_con, 
+                                              lab.col = col_con,lab.font=1,lab.cex=size))
+          }
+      return(n)
+  }
+  
+  hc <- hclust(dist(tdata))
+  dhc <- as.dendrogram(hc)
+  dL <- dendrapply(dhc, colLab)
+  return(dL)
 }
 # Finally I just have to apply this to my dendrogram
-dL <- dendrapply(dhc, colLab)
-plot(dL , main="Chromosome 8 , Plate_1 and type I")
-legend("top", title = "Sample status",
-     legend = c("Alzheimer", "Control"), 
-     col = c("red", "blue"), 
-     pch = c(20,20), bty = "n",  pt.cex = 1.5, cex = 0.8 , 
-     text.col = "black", horiz = FALSE, inset = c(0, 0.1))
 ```
+
+```{r}
+par(mar=c(8,4,4,4))
+dL <- plotcase(caseM,1)
+plot(dL , main="All males that has Alzheimer",xaxt="n")
+#axis(1, at=1:length(caseM$type), labels= caseM$geo_accession)
+legend("topright", title = "Region",
+     legend = c("CRB", "DLPFC", "ERC", "HIPPO"), 
+     col = c("red", "blue", "yellow", "green"), 
+     pch = c(20,20,20,20), bty = "n",  pt.cex = 1.5, cex = 0.8 , 
+     text.col = "black", horiz = FALSE, inset = c(0, 0.1))
+par(mfrow = c(1, 1))
+```
+
+```{r}
+dL <- plotcase(case,0.6)
+
+```
+
+```{r, fig.height=6}
+plot(dL , main="People with Alzheimer disease", horiz=TRUE,xaxt="n")
+#axis(2,cex.axis=0.6)
+#axis(1, at=1:length(caseM$type), labels= caseM$geo_accession)
+legend("topleft", title = "Region",
+     legend = c("CRB", "DLPFC", "ERC", "HIPPO"), 
+     col = c("red", "blue", "yellow", "green"), 
+     pch = c(20,20,20,20), bty = "n",  pt.cex = 1.5, cex = 0.8 , 
+     text.col = "black", horiz = FALSE, inset = c(0, 0.1))
+
+#rm(list = ls())
+```
+

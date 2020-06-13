@@ -15,14 +15,8 @@ data <- read.csv("../../2darbas/input/GSE125895_samplekey.csv", as.is = TRUE)
 #Remove unnecessary columns
 data <- data[-c(3:5,7,24,26,28,29,32:34,36:46,49)]
 
-names(data)[names(data) == "title"] <- "sample_name"
-data$sample_name <- gsub("sample_plate:", "", data$sample_name)
-
-names(data)[names(data) == "geo_accession"] <- "slide"
-
-
 names(data)[names(data) == "characteristics_ch1"] <- "sample_plate"
-data$sample_plate <- gsub("sample_plate:", "", data$sample_plate)
+data$sample_plate <- gsub("sample_plate: ", "", data$sample_plate)
 
 names(data)[names(data) == "characteristics_ch1.2"] <- "brNum"
 data$brNum <- gsub("brnum: ", "", data$brNum)
@@ -35,7 +29,6 @@ data$tissue_region <- gsub("tissue region: ", "", data$tissue_region)
 
 names(data)[names(data) == "characteristics_ch1.5"] <- "sample"
 data$sample <- gsub("disease state \\(dx\\): ", "", data$sample)
-
 
 names(data)[names(data) == "characteristics_ch1.6"] <- "age"
 data$age <- gsub("age: ", "", data$age)
@@ -73,12 +66,11 @@ data$Basename <- gsub("_Red.idat.gz|_Grn.idat.gz", "", data$Basename)
 
 data$sentrix_id <- sapply(strsplit(basename(data$supplementary_file.1), "_"), "[", 2)
 
-beta <- readRDS("../../Komanda/output/beta.rds")
+beta <- readRDS("../../Komanda/output/betab.rds")
 n <- colnames(beta)
 
 data <- data[match(n, data$sample_id),]
-
 head(data)
-
+dim(beta)
 write.csv(data, "../output/sampleKey.csv")
 ```

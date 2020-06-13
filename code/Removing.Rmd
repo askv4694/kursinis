@@ -1,0 +1,102 @@
+---
+title: "2darbas3"
+author: "Asta Kvedaraite & Marius Survila"
+date: "April 1, 2020"
+output: html_document
+---
+```{r}
+beta<- readRDS("../../Komanda/output/beta.rds")
+
+pData<- readRDS("../../Komanda/output/pData.rds")
+
+annotation<- readRDS("../../Komanda/output/annotation.rds") 
+
+```
+
+#12. Calculating IACs for all pairs of samples and \
+examining the distribution of IACs in the dataset
+```{r}
+
+dim(beta)
+#beta=beta[,1:ncol(beta)]
+IAC=cor(beta,use="p")
+hist(IAC,sub=paste("Mean=",
+    format(mean(IAC[upper.tri(IAC)]),digits=3))) 
+
+```
+#Performing hierachical clustering (average linkage)
+using 1-IAC as a distance metric
+```{r}
+library(cluster)
+cluster1=hclust(as.dist(1-IAC),method="average")
+plot(cluster1,cex=0.7,labels=dimnames(beta)[[2]],
+     sub = "", xlab = "1 - IAC")
+
+
+```
+# Another way to visualize outliers is to calculate the
+mean IAC for each array and examine this distribution
+```{r}
+
+meanIAC=colMeans(IAC)
+sdCorr=sd(meanIAC)
+numbersd=(meanIAC-mean(meanIAC))/sdCorr
+plot(numbersd)
+abline(h=-3) 
+
+```
+
+#Identifying outliers that are depicted in the dendrogram.\
+Also removing those outliers.
+```{r}
+sdout=-3
+outliers=dimnames(beta)[[2]][numbersd<sdout]
+outliers
+
+beta=beta[,numbersd>sdout]
+dim(beta) 
+beta_save <- beta
+```
+#Iterations that are supoosed to remove outliers and\
+improve distribution of IAC and mean, remove outliers.
+```{r}
+
+for(i in c(1:2)){
+  IAC=cor(beta,use="p")
+  hist(IAC,sub=paste("Mean=",
+      format(mean(IAC[upper.tri(IAC)]),digits=3))) 
+  
+  cluster1=hclust(as.dist(1-IAC),method="average")
+  #plot(cluster1,cex=0.7,labels=dimnames(beta)[[2]],
+  #     sub = "", xlab = "1 - IAC")
+  
+  meanIAC=colMeans(IAC)
+  sdCorr=sd(meanIAC)
+  numbersd=(meanIAC-mean(meanIAC))/sdCorr
+  plot(numbersd)
+  abline(h=-3) 
+  
+  sdout=-3
+  outliers=dimnames(beta)[[2]][numbersd<sdout]
+  outliers
+  
+  beta=beta[,numbersd>sdout]
+  dim(beta) 
+}
+
+```
+#Checking data after iterations\
+Mean got higher and there are less outliers.\
+```{r}
+
+IAC=cor(beta,use="p")
+hist(IAC,sub=paste("Mean=",
+    format(mean(IAC[upper.tri(IAC)]),digits=3))) 
+
+dim(beta)
+```
+
+```{r}
+saveRDS(beta, "../../Komanda/output/betab.rds")
+
+```
