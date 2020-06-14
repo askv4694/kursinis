@@ -1,0 +1,90 @@
+---
+title: "Genomic features"
+author: "Asta Kvedaraitė"
+date: "6/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+beta <- readRDS("../../Komanda/output/betab.rds")
+anno <- readRDS("../../Komanda/output/annotation.rds")
+sample <- read.csv("../output/sampleKey.csv",  as.is = TRUE)
+
+
+```
+
+```{r}
+#lib
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  BiocManager::install("karyoploteR")
+  BiocManager::install("GenomicRanges")
+  
+library("karyoploteR")
+library("GenomicRanges")  
+
+```
+
+```{r}
+as.data.frame(anno[1:5,])
+#anno <- anno[1:1000,]
+#score - pos
+reg <- data.frame(chr = as.character(anno$chr), 
+                  start = as.numeric(anno$AddressA), end = as.numeric(anno$AddressB),
+                  strand = anno$strand, score = c(1:nrow(anno)))
+
+#reg[1:5,]
+reg<- reg[!is.na(reg$chr),]
+reg<- reg[!is.na(reg$start),]
+reg<- reg[!is.na(reg$end),]
+reg<- reg[!is.na(reg$strand),]
+for (i in 1:nrow(reg)){
+  if(reg$start[i] > reg$end[i]){
+    temp <- reg$end[i]
+    reg$end[i] <- reg$start[i]
+    reg$start[i] <- temp
+  }
+}
+#reg <- reg[reg$start < reg$end,]
+#reg <- reg[!is.na(reg$chr),]
+dim(reg)
+#regions <- createRandomRegions(nregions=30, length.mean = 1e6, mask=NA, non.overlapping=FALSE)
+#unique(reg$chr)
+#reg$chr <- as.character(reg$chr) 
+#unique(reg$chr)
+#reg[67419,]
+#anno[67419,]
+makeGRangesFromDataFrame(reg[1:5,]) 
+gr <- makeGRangesFromDataFrame(reg, keep.extra.columns=TRUE)
+head(gr)
+```
+
+```{r}
+kp <- plotKaryotype()
+
+kpPlotCoverage(kp, data=gr)
+
+```
+
+```{r}
+kp <- plotKaryotype(plot.type=2, chromosomes = "chrX")
+kpPlotCoverage(kp, data=gr)
+kpPlotRegions(kp, data=gr, data.panel=2)
+
+```
+
+```{r}
+
+
+kp <- plotKaryotype(plot.type=1, chromosomes = "chr9")
+kpPlotCoverage(kp, data=gr, r0=0.7, r1=1, col="#0e87eb")
+kpPlotCoverage(kp, data=gr, r0=0.7, r1=0.85, col="#ffdb50")
+kpPlotRegions(kp, data=gr, r0=0.65, r1=0)
+
+
+```

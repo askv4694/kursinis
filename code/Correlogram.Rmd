@@ -1,0 +1,59 @@
+---
+title: "Correlogram"
+author: "Asta Kvedaraitė"
+date: "6/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+beta <- readRDS("../../Komanda/output/betab.rds")
+anno <- readRDS("../../Komanda/output/annotation.rds")
+sample <- read.csv("../output/sampleKey.csv",  as.is = TRUE)
+
+
+```
+
+```{r}
+#packages
+
+#if(!require("corrgram"))install.packages("corrgram")
+library("corrgram")
+library(GGally)
+
+```
+
+```{r}
+dlpfc <- sample[sample$tissue_region == "DLPFC",]
+dlpfc <- dlpfc[dlpfc$sex == "M",]
+dlpfc <- dlpfc[1:9,]
+
+chr <- anno[anno$chr == "chr9",]
+#chr <- chr[chr$Color == "Grn",]
+as.data.frame(chr)
+
+
+data <- beta[chr$Name,dlpfc$sample_id]
+#data <- beta[,]
+data <- as.data.frame(data)
+
+dim(data)
+
+
+```
+
+```{r}
+
+corrgram(data, order=FALSE, lower.panel=panel.pts,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="DLPFC region")
+
+```
+
+```{r}
+ggpairs(data) 
+
+```

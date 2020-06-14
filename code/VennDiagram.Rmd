@@ -10,10 +10,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-data <- readRDS("../../Komanda/output/beta.rds")
+beta <- readRDS("../../Komanda/output/betab.rds")
 anno <- readRDS("../../Komanda/output/annotation.rds")
-sample <- read.csv("../../kursinis/output/sampleKey.csv",  as.is = TRUE)
+sample <- read.csv("../output/sampleKey.csv",  as.is = TRUE)
 
+
+```
+
+```{r}
+#libraries
+if(!require("VennDiagram"))install.packages("VennDiagram")
+library(VennDiagram)
+
+library(RColorBrewer)
+
+```
+
+
+```{r}
 dim(data)
 dim(anno)
 dim(sample)
@@ -23,7 +37,100 @@ unique(sample$tissue_region)
 
 
 ```{r}
+unique(sample$tissue_region)
+crb <- sample$sample_id[sample$tissue_region == "CRB"]
+dlpfc <- sample$sample_id[sample$tissue_region == "DLPFC"]
+erc <- sample$sample_id[sample$tissue_region == "ERC"]
+hippo <- sample$sample_id[sample$tissue_region == "HIPPO"]
+beta <- beta[1:1000,]
 
+
+crb <- c(beta[,crb])
+dlpfc <- c(beta[, dlpfc])
+erc <- c(beta[, erc])
+hippo <- c(beta[,hippo])
+
+```
+
+
+```{r}
+
+myCol <- brewer.pal(4, "Set1")
+
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+
+plt <- venn.diagram(
+  x = list(crb, dlpfc, erc, hippo),
+  category.names = c("CRB","DLPFC","ERC","HIPPO"),
+  filename = NULL,
+  #output=TRUE
+  #imagetype="png" ,
+  height = 480 , 
+  width = 480 , 
+  resolution = 300,
+  compression = "lzw",
+  
+  # Circles
+  lwd = 4,
+  lty = 'blank',
+  col= myCol,
+  fill = myCol,
+  
+  # Numbers
+  cex = 1,
+  fontface = "bold",
+  fontfamily = "sans",
+  cat.col = myCol,
+  
+)
+
+```
+
+```{r}
+grid.newpage()
+grid.draw(plt)
+```
+
+```{r}
+
+myCol <- brewer.pal(3, "Set2")
+myCol <- myCol[1:2]
+
+case <- sample$age[sample$sample == "Control"]
+control <- sample$age[sample$sample != "Control"]
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+
+plt <- venn.diagram(
+  x = list(case, control),
+  category.names = c("Alzheimer", "Control"),
+  filename = NULL,
+  
+  #output=TRUE
+  #imagetype="png" ,
+  height = 480 , 
+  width = 480 , 
+  rwesolution = 300,
+  compression = "lzw",
+  
+  # Circles
+  lwd = 2,
+  lty = 'blank',
+  col= myCol,
+  fill = myCol,
+  
+  # Numbers
+  cex = 1,
+  fontface = "bold",
+  fontfamily = "sans",
+  cat.col = myCol,
+  
+)
 
 
 ```
+
+```{r}
+grid.newpage()
+grid.draw(plt)
+```
+
