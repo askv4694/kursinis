@@ -26,39 +26,19 @@ beta <- readRDS("../../Komanda/output/betab.rds")
 anno <- readRDS("../../Komanda/output/annotation.rds")
 library("S4Vectors")
 
-print ("unique sample plates :")
-unique(sample$sample_plate)
-chr8 <- anno[anno$chr == "chr8",]
-chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
-print(paste0("nrow chr8 : ",nrow(chr8body)))
-
-chr8bodyI <- chr8body[chr8body$Type == "I",]
-print(paste0("chr8, group - body and type I : row count :",nrow(chr8bodyI)))
-plate1 <- sample[sample$sample_plate == " Plate 1",]
-
-print(paste0("nrow plate_1 : ", nrow(plate1)))
-data <- beta[chr8bodyI$Name, plate1$sample_id]
-print(paste0("data row count : ", nrow(data)))
-print(paste0("data column count : ", ncol(data)))
-
 ```
 
 ```{r}
-
-hc <- hclust(dist(data))
-dhc <- as.dendrogram(hc)
-
-# set the margin
-par(mar=c(4,4,2,2))
-
-# Plot the Second group
-plot(dhc[[2]] , main= "zoom on a part of the dendrogram")
-specific_leaf <- dhc[[2]][[1]][[2]]
-plot(specific_leaf)
-
-plot(hc, labels = FALSE)
-
+#sample
+#case
+#unique(as.character(case$sample))
+#unique(as.character(case$tissue_region))
+#data <- beta[,case$sample_id]
+#data <- t(data)
 ```
+
+
+
 ```{r}
 if(!require("GGally"))install.packages("GGally")
 library(GGally)
@@ -66,35 +46,73 @@ library(ggplot2)
 library(hrbrthemes)
 library(moduleColor)
 
-
-tm <- matrix(nrow = nrow(data), ncol = 2)
-#tm[1:5, 1:2]
-for (i in 1:nrow(data)){
-    mean <- mean(as.numeric(data[i,]))
-    tm[i,] <- c(rownames(data)[i], mean)
-}
-tm <- tm[order(tm[,2], decreasing = TRUE),]
-
-tdata <- t(data[tm[1:100,1],])
-tdata <- as.data.frame(tdata)
-tdata$status <- plate1$sample
-#tdata
-#for (i in 1:ncol(tdata)){
-#  if (as.character(tdata$status[i]) == "Control") {
-#    tdata$stnum[i] <- 2 
-#  }else {
-#    tdata$stnum[i] <- 4 
-#  }
-#}
-
-#typeof(plate1$sample)
-#as.character(plate1$sample)
-ggparcoord(tdata,
-    columns = 1:(ncol(tdata)-1), groupColumn = ncol(tdata),
-    scale="uniminmax",
-     showPoints = TRUE
-    )
 ```
+
+```{r}
+#case
+
+
+#sample
+data <- sample[,c(11,13,14,12)]
+
+#data
+rownames(data) <- sample$sample_id
+
+
+ggparcoord(data,
+    columns = 1:(ncol(data)-1), groupColumn = ncol(data),
+    #scale="uniminmax",
+     showPoints = TRUE ) + 
+  xlab(label = "characteristics") + 
+  ylab(label = "samples")
+  
+
+```
+
+
+
+```{r}
+min <- min(sample$age[sample$sample == "Alzheimer"])
+case <- sample[sample$race == "AA",] 
+case <- case[case$sample_plate == "Plate 2",]
+case <- case[case$age > min,]
+case
+
+```
+
+
+```{r}
+plotcord <- function(data){
+  ggparcoord(data,
+    columns = 1:(ncol(data)-1), groupColumn = ncol(data),
+    scale="uniminmax",
+     showPoints = TRUE ) +
+  xlab(label = "") +
+  ylab(label = "methylated values") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+}
+
+```
+
+```{r}
+chr <- anno$Name[anno$chr == "chrY"]
+data <- beta[chr,case$sample_id]
+
+data<- as.data.frame(data)
+data$status <- anno$NextBase[anno$chr == "chrY"]
+data$status <- ifelse(data$status != "" ,data$status, NA)
+
+colnames(data) <- c(as.character(case$geo_accession), "status")
+plotcord(data)
+
+```
+```{r}
+data <- data[!is.na(data$status),]
+plotcord(data)
+
+```
+
+
 
 
 
