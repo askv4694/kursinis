@@ -32,43 +32,37 @@ library("GenomicRanges")
 
 ```{r}
 #anno <- readRDS("../../Komanda/output/annotation.rds")
-as.data.frame(anno[1:5,])
-#anno <- anno[1:2000,]
-#score - pos
-#reg <- data.frame(chr = as.character(anno$chr), 
-#                  start = as.numeric(anno$AddressA), end = as.numeric(anno$AddressB),
-#                  strand = anno$strand, strand.field = anno$SourceSeq)
 
-#reg[1:5,]
-#names(anno)[5] <- "start"
-#names(anno)[6] <- "end"
+as.data.frame(anno[1:5,])
+
+
 reg <- anno
 reg$start <- reg$Islands_Name
 #unique(reg$Islands_Name)
+
+male <- sample$sample_id[sample$sex == "M"]
+female <- sample$sample_id[sample$sex == "F"]
+
+male <- beta[,male]
+female <- beta[,female]
+
+ttest <- matrixTests::row_t_welch(male, female)
+val <- ttest[ttest$pvalue < 0.05,]
+
+
+#unique(reg$chr)
+#dim(reg)
+reg <- anno[rownames(val),]
+reg <- data.frame(reg)
+
 reg$Islands_Name <- sapply(strsplit(reg$Islands_Name, ":"), "[", 2)
 reg <- reg[!is.na(reg$Islands_Name),]
 reg$start <- sapply(strsplit(reg$Islands_Name, "-"), "[", 1)
 reg$end <- sapply(strsplit(reg$Islands_Name, "-"), "[", 2)
-
-#reg<- reg[!is.na(reg$chr),]
-#reg<- reg[!is.na(reg$start),]
-#reg<- reg[!is.na(reg$end),]
-#reg<- reg[!is.na(reg$strand),]
-#reg <- reg[reg$start < reg$end,]
-#reg <- reg[!is.na(reg$chr),]
-
-
-
-#dim(reg)
-#regions <- createRandomRegions(nregions=30, length.mean = 1e6, mask=NA, non.overlapping=FALSE)
-#unique(reg$chr)
-#reg$chr <- as.character(reg$chr) 
-unique(reg$chr)
-#reg[67419,]
-#anno[67419,]
-makeGRangesFromDataFrame(reg[1:5,]) 
+reg
+#makeGRangesFromDataFrame(reg[1:5,]) 
 gr <- makeGRangesFromDataFrame(reg, keep.extra.columns=TRUE)
-head(gr)
+#head(gr)
 ```
 
 ```{r}
@@ -79,7 +73,7 @@ kpPlotCoverage(kp, data=gr)
 ```
 
 ```{r}
-kp <- plotKaryotype(plot.type=2, chromosomes = "chrX")
+kp <- plotKaryotype(plot.type=1, chromosomes = "chrX")
 kpPlotCoverage(kp, data=gr)
 kpPlotRegions(kp, data=gr, data.panel=2)
 

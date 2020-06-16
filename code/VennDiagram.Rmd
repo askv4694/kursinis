@@ -33,6 +33,7 @@ dim(anno)
 dim(sample)
 
 unique(sample$tissue_region)
+sample
 ```
 
 
@@ -44,12 +45,20 @@ erc <- sample$sample_id[sample$tissue_region == "ERC"]
 hippo <- sample$sample_id[sample$tissue_region == "HIPPO"]
 #beta <- beta[1:1000,]
 
+#rowmeans
+#round(sk, 1)
+#c(beta[1,1:5])
+crb <- c(as.numeric(round(rowMeans(beta[,crb]),4)))
+dlpfc <- c(as.numeric(round(rowMeans(beta[,dlpfc]),4)))
+erc <- c(as.numeric(round(rowMeans(beta[,erc]),4)))
+hippo <- c(as.numeric(round(rowMeans(beta[,hippo]),4)))
 
-crb <- c(beta[,crb])
-dlpfc <- c(beta[, dlpfc])
-erc <- c(beta[, erc])
-hippo <- c(beta[,hippo])
 
+#crb <- beta[,crb]
+#crb <- round(rowMeans(crb),1)
+#mean(beta[1, crb])
+#dlpfc[1:5]
+#erc[1:5]
 ```
 
 
@@ -96,8 +105,8 @@ grid.draw(plt)
 myCol <- brewer.pal(3, "Set2")
 myCol <- myCol[1:2]
 
-case <- sample$age[sample$sample == "Control"]
-control <- sample$age[sample$sample != "Control"]
+case <- sample$sentrix_id[sample$sample == "Control"]
+control <- sample$sentrix_id[sample$sample != "Control"]
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
 
 plt <- venn.diagram(
@@ -132,5 +141,54 @@ plt <- venn.diagram(
 ```{r}
 grid.newpage()
 grid.draw(plt)
+
 ```
+
+
+```{r}
+#unique(anno$Relation_to_Island)
+#as.data.frame(anno[1:10,])
+#unique(anno$Probe_rs)
+#"Island"  "S_Shore" "OpenSea" "N_Shore" "N_Shelf" "S_Shelf"
+sShore <- anno$pos[anno$Relation_to_Island =="S_Shore"]
+nShore <- anno$pos[anno$Relation_to_Island =="N_Shore"]
+Nshelf <- anno$pos[anno$Relation_to_Island =="N_Shelf"]
+Sshelf <- anno$pos[anno$Relation_to_Island =="S_Shelf"]
+
+myCol <- brewer.pal(4, "Set1")
+
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+
+plt <- venn.diagram(
+  x = list(sShore, nShore, Nshelf, Sshelf),
+  category.names = c("S_Shore","N_Shore","N_Shelf","S_Shelf"),
+  filename = NULL,
+  #output=TRUE
+  #imagetype="png" ,
+  height = 480 , 
+  width = 480 , 
+  resolution = 300,
+  compression = "lzw",
+  
+  # Circles
+  lwd = 4,
+  lty = 'blank',
+  col= myCol,
+  fill = myCol,
+  
+  # Numbers
+  cex = 1,
+  fontface = "bold",
+  fontfamily = "sans",
+  cat.col = myCol,
+  
+)
+
+```
+
+```{r}
+grid.newpage()
+grid.draw(plt)
+```
+
 

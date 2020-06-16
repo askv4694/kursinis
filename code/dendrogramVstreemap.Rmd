@@ -43,6 +43,8 @@ caseM <- case[case$sex == "M",]
   
 
 ```{r}
+
+colrs <- c("blue", "red", "orange", "green")
 #So if I Want to color each leaf of the Tree, I have to change the attribute of each leaf. This can be done using the dendrapply function. So I create a function that # # add 3 attributes to the leaf : one for the color (“lab.col”) ,one for the font “lab.font” and one for the size (“lab.cex”).
 plotcase<- function(case, size){
   casenames <- case$sample_id
@@ -70,10 +72,10 @@ plotcase<- function(case, size){
           ligne <- match(attributes(n)$label,rownames(tdata))
           control <- as.character(tdata[ligne,last]);
           
-          if(control=="CRB"){col_con="blue"};
-          if(control=="DLPFC"){col_con="red"};
-          if(control=="ERC"){col_con="orange"};
-          if(control=="HIPPO"){col_con="green"};
+          if(control=="CRB"){col_con=colrs[1]};
+          if(control=="DLPFC"){col_con=colrs[2]};
+          if(control=="ERC"){col_con=colrs[3]};
+          if(control=="HIPPO"){col_con=colrs[4]};
           
           attr(n,"nodePar")<-c(a$nodePar,list(cex=1.5,lab.cex=1,pch=20,col=col_con, 
                                               lab.col = col_con,lab.font=1,lab.cex=size))
@@ -96,7 +98,7 @@ plot(dL , main="All males that has Alzheimer",xaxt="n")
 #axis(1, at=1:length(caseM$type), labels= caseM$geo_accession)
 legend("topright", title = "Region",
      legend = c("CRB", "DLPFC", "ERC", "HIPPO"), 
-     col = c("red", "blue", "yellow", "green"), 
+     col = colrs, 
      pch = c(20,20,20,20), bty = "n",  pt.cex = 1.5, cex = 0.8 , 
      text.col = "black", horiz = FALSE, inset = c(0, 0.1))
 par(mfrow = c(1, 1))
@@ -113,7 +115,7 @@ plot(dL , main="People with Alzheimer disease", horiz=TRUE,xaxt="n")
 #axis(1, at=1:length(caseM$type), labels= caseM$geo_accession)
 legend("topleft", title = "Region",
      legend = c("CRB", "DLPFC", "ERC", "HIPPO"), 
-     col = c("red", "blue", "yellow", "green"), 
+     col = colrs, 
      pch = c(20,20,20,20), bty = "n",  pt.cex = 1.5, cex = 0.8 , 
      text.col = "black", horiz = FALSE, inset = c(0, 0.1))
 

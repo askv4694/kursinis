@@ -97,7 +97,10 @@ plotcord <- function(data){
 ```{r}
 chr <- anno$Name[anno$chr == "chrY"]
 data <- beta[chr,case$sample_id]
-
+#regmatches(anno$Relation_to_Island[16], regexec("Shore", anno$Relation_to_Island[16]))[[1]]
+#gsub("N_|S_", "", unique(anno$Relation_to_Island))
+tempAnno <- anno
+anno$Relation_to_Island <- gsub("N_|S_", "", anno$Relation_to_Island)
 data<- as.data.frame(data)
 data$status <- anno$Relation_to_Island[anno$chr == "chrY"]
 data$status <- ifelse(data$status != "" ,data$status, NA)
@@ -105,7 +108,8 @@ data$status <- ifelse(data$status != "" ,data$status, NA)
 colnames(data) <- c(as.character(case$geo_accession), "Relation_to_Island")
 
 plotcord(data)
-
+anno <-tempAnno
+rm(anno)
 ```
 ```{r}
 

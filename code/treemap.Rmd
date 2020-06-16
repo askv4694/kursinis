@@ -24,25 +24,7 @@ anno <- readRDS("../../Komanda/output/annotation.rds")
 #head(as.data.frame(beta))
 
 library("S4Vectors")
-#head(sample)
-#head(as.data.frame(anno))
-#head(as.data.frame(beta))
-print ("unique sample plates :")
-unique(sample$sample_plate)
-chr8 <- anno[anno$chr == "chr8",]
-chr8body <- chr8[chr8$UCSC_RefGene_Group == "Body",]
-print(paste0("nrow chr8 : ",nrow(chr8body)))
-#as.data.frame(chr8body)
-chr8bodyI <- chr8body[chr8body$Type == "I",]
-#as.data.frame(chr8bodyI)
-print(paste0("chr8, group - body and type I : row count :",nrow(chr8bodyI)))
-plate1 <- sample[sample$sample_plate == " Plate 1",]
-#plate1
-print(paste0("nrow plate_1 : ", nrow(plate1)))
-data <- beta[chr8bodyI$Name, plate1$sample_id]
-print(paste0("data row count : ", nrow(data)))
-print(paste0("data column count : ", ncol(data)))
-#as.data.frame(data)
+
 ```
 
 ```{r}
@@ -66,15 +48,21 @@ tdata <- as.data.frame(tdata)
 
 library(treemap)
 library(matrixStats)
- 
 # Build Dataset
-tdat <- data.frame(sex = plate1$sex,sample = plate1$sample, 
-                   age = plate1$age, median = rowMedians(as.matrix(tdata)))
+tdat <- data.frame(sex = sample$sex,sample = sample$sample, 
+                   age = sample$age, race = sample$race)
 
 p<- treemap(tdat,
-            index=c("sex", "sample", "age"),
-            vSize= "median",
-            type="index",
+            index=c("sample", "sex", "race"),
+            vSize= "age",
+            #type="index",
+            type="value",
+            #fun.aggregate = "mean",
+            palette = "Set3",
+            #range = "age",
+            #algorithm = "pivotSize",
+            title = "General information of samples",
+            #mapping = c("sample", "sex", "race"),
             align.labels=list(
               c("center", "center"), 
               c("right", "bottom")
@@ -85,7 +73,9 @@ p<- treemap(tdat,
 
 
 ```{r}
-
+#length(sample$age[sample$race == "AA" & sample$sex == "F" & sample$sample == "Control"])
+#length(sample$age[sample$race != "AA" & sample$sex == "F" & sample$sample == "Control"])
+table(sample$race, sample$sex, sample$sample)
 library(treemap)
 #devtools::install_github("timelyportfolio/d3treeR")
 library(d3treeR)

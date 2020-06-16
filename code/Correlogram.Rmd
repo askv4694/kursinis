@@ -27,16 +27,23 @@ library(GGally)
 ```
 
 ```{r}
-dlpfc <- sample[sample$tissue_region == "DLPFC",]
-dlpfc <- dlpfc[dlpfc$sex == "M",]
-dlpfc <- dlpfc[1:9,]
 
-chr <- anno[anno$chr == "chr9",]
-#chr <- chr[chr$Color == "Grn",]
-as.data.frame(chr)
+region1 <- sample[sample$tissue_region == "DLPFC",][1:2,]
+region2 <- sample[sample$tissue_region == "CRB",][1:2,]
+region3 <- sample[sample$tissue_region == "ERC",][1:2,]
+region4 <- sample[sample$tissue_region == "HIPPO",][1:2,]
 
+reg <- rbind(region1, region2, region3, region4)
 
-data <- beta[chr$Name,dlpfc$sample_id]
+vars <- rowVars(beta)
+#vars
+#vars <- data.frame(vars = vars, ind = c(1:length(vars)))
+#vars
+vars <- order(vars, decreasing = TRUE)
+#positions in beta
+vars <- vars[1:10000]
+
+data <- beta[vars,reg$sample_id]
 #data <- beta[,]
 data <- as.data.frame(data)
 
@@ -47,13 +54,25 @@ dim(data)
 
 ```{r}
 
-corrgram(data, order=FALSE, lower.panel=panel.pts,
+corrgram(data, order=FALSE, lower.panel=panel.shade,
   upper.panel=panel.pie, text.panel=panel.txt,
-  main="DLPFC region")
+  main="Samples from each brain region")
 
 ```
 
 ```{r}
-ggpairs(data) 
+colnames(data)[3]
 
+rbind(sample[sample$sample_id == colnames(data)[3],],
+    sample[sample$sample_id == colnames(data)[4],],
+    sample[sample$sample_id == colnames(data)[5],])
+
+#sample[sample$geo_accession == "GSM3584326",]
+```
+
+
+```{r}
+ggpairs(data[1:1000,]) 
+
+sample
 ```
