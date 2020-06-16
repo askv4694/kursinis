@@ -42,7 +42,7 @@ crb <- sample$sample_id[sample$tissue_region == "CRB"]
 dlpfc <- sample$sample_id[sample$tissue_region == "DLPFC"]
 erc <- sample$sample_id[sample$tissue_region == "ERC"]
 hippo <- sample$sample_id[sample$tissue_region == "HIPPO"]
-beta <- beta[1:1000,]
+#beta <- beta[1:1000,]
 
 
 crb <- c(beta[,crb])

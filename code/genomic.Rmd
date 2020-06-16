@@ -20,10 +20,10 @@ sample <- read.csv("../output/sampleKey.csv",  as.is = TRUE)
 
 ```{r}
 #lib
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-  BiocManager::install("karyoploteR")
-  BiocManager::install("GenomicRanges")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#  BiocManager::install("karyoploteR")
+#  BiocManager::install("GenomicRanges")
   
 library("karyoploteR")
 library("GenomicRanges")  
@@ -31,32 +31,39 @@ library("GenomicRanges")
 ```
 
 ```{r}
+#anno <- readRDS("../../Komanda/output/annotation.rds")
 as.data.frame(anno[1:5,])
-#anno <- anno[1:1000,]
+#anno <- anno[1:2000,]
 #score - pos
-reg <- data.frame(chr = as.character(anno$chr), 
-                  start = as.numeric(anno$AddressA), end = as.numeric(anno$AddressB),
-                  strand = anno$strand, score = c(1:nrow(anno)))
+#reg <- data.frame(chr = as.character(anno$chr), 
+#                  start = as.numeric(anno$AddressA), end = as.numeric(anno$AddressB),
+#                  strand = anno$strand, strand.field = anno$SourceSeq)
 
 #reg[1:5,]
-reg<- reg[!is.na(reg$chr),]
-reg<- reg[!is.na(reg$start),]
-reg<- reg[!is.na(reg$end),]
-reg<- reg[!is.na(reg$strand),]
-for (i in 1:nrow(reg)){
-  if(reg$start[i] > reg$end[i]){
-    temp <- reg$end[i]
-    reg$end[i] <- reg$start[i]
-    reg$start[i] <- temp
-  }
-}
+#names(anno)[5] <- "start"
+#names(anno)[6] <- "end"
+reg <- anno
+reg$start <- reg$Islands_Name
+#unique(reg$Islands_Name)
+reg$Islands_Name <- sapply(strsplit(reg$Islands_Name, ":"), "[", 2)
+reg <- reg[!is.na(reg$Islands_Name),]
+reg$start <- sapply(strsplit(reg$Islands_Name, "-"), "[", 1)
+reg$end <- sapply(strsplit(reg$Islands_Name, "-"), "[", 2)
+
+#reg<- reg[!is.na(reg$chr),]
+#reg<- reg[!is.na(reg$start),]
+#reg<- reg[!is.na(reg$end),]
+#reg<- reg[!is.na(reg$strand),]
 #reg <- reg[reg$start < reg$end,]
 #reg <- reg[!is.na(reg$chr),]
-dim(reg)
+
+
+
+#dim(reg)
 #regions <- createRandomRegions(nregions=30, length.mean = 1e6, mask=NA, non.overlapping=FALSE)
 #unique(reg$chr)
 #reg$chr <- as.character(reg$chr) 
-#unique(reg$chr)
+unique(reg$chr)
 #reg[67419,]
 #anno[67419,]
 makeGRangesFromDataFrame(reg[1:5,]) 
