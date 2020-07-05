@@ -1,0 +1,60 @@
+DAUGIAMAČIŲ BIOMEDICINOS DUOMENŲ ATVAIZDAVIMO METODAI
+=====================================================
+
+3---------------
+	Mano naudoti duomenys buvo integruoti DNR metilinimai ir genų raiškos
+skirtinguose smegenų regionuose tiriant Alzheimerio ligą.
+	Dorsolateralinė priekinė žievė
+	entorinalinė žievė
+	hipokampas
+	smegenų žievė
+Viso naudoti 269 mėginiai, iš kurių 49 sveiki ir 24 sergantys.
+
+4---------------
+	Dendrograma naudojama hierarchiniam klasterizavimui. Y ašyje parodomi
+atstumai tarp mėginių, kurie yra X ašyje. Mėginiai nuspalvinti pagal grupes,
+CRB išsiskiria nuo kitų, kaip atskira grupė.
+
+5---------------
+	Paralelinės koordinatės vizualiai parodo pozicijos reikšmes sujungtas
+kiekvienam mėginiui, linijos nuspalvintos pagal CpG salas. Matome, kad 
+dauguma iš jų salos turi mažas reikšmes, rifas ir krantas per vidurį ir 
+jūra turi dideles reikšmes.
+
+6---------------
+	Medžio schema klasterizuoja į grupes ir į subgrupes. Nenaudoti 
+daugiamačiai duomenys, tačiau čia parodyta bendra informacija apie 
+mėginius - kokio tipo mėginys ir kiek toje grupėje jų yra. Pvz.: 
+Afro-Amerikiečių tautybės nesergančių moterų mėginių yra apie 40. 
+
+7---------------
+	Veno diagrama parodo ryšį tarp duomenų - kiek yra tokių pat duomenų
+tuose regionuose. Naudoti pozicijų vidurkiai pagal regioną 4 sk po kablelio
+tikslumu. Pasikartojančių reikšmių neskaičiuoja.
+
+8---------------
+	Korelograma atvaizduoja ryšius tarp mėginių. Kadangi rekomenduojama
+nenaudoti daugiau 10 tiriamųjų, naudoti 8 mėginiai - iš kiekvieno smegenų
+regiono po 2 mėginius. Įstrižainėje mėginio pavadinimas. Mėlynai žymima 
+teigiama koreliacija o raudonai neigiama.
+3 ir 4 tiriamieji labiausiai skiriasi - CRB. 
+
+9---------------
+	Genominių savybių persidengimo atvaizdavime šiuo atveju kaip savybė
+naudojamas metilinimas. Pavaizduoti pozicijų persidengimai genome, kurie 
+skiriasi tarp lyčių. Labiausiai skiriasi X chromosoma. Galima pavaizduoti
+visą genomą, arba vienos chromosomos dalį. Pozicijos persidengimai
+randami pagal pozicijos pradžią ir pabaigą.
+
+10--------------
+	Dendrograma pavaizduoja mėginių atstumus. Rekomenduojama naudoti
+horizontalią, kai ilgi mėginių pavadinimai.
+	Paralelinės koordinatės parodo duomenų panašumus, tačiau naudojant
+daug savybių, sunku suprasti.
+	Medžio schema atspindi bendrą informaciją, galima daug subgrupių.
+	Veno diagrama naudojama panašumų ir skirtumų skaičiavimui. Nenaudoti
+daug 3 grupių, sunku suprasti, tačiau spalvos padeda.
+	Korelogramą galima pavaizduoti 2 skirtingais būdais, tačiau naudoti
+ne daugiau 10 tiriamųjų.
+	Genominių savybių persidengimo atvaizdavimas parodo visą genomą ir jame
+persidengiančias pozicijas.

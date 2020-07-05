@@ -1,0 +1,19 @@
+Kursiniame darbe išbandyti daugiamačiai duomenų atvaizdavimo metodai analizuojant realius epigenetinius DNR metilinimo duomenis. 
+---------------------------------------------------------
+
+RAKTINIAI : 
+DNR metilinimai, koreliacijos, klasterizavimas, daugiamačiai atvaizdavimo metodai.
+
+-----------------------------------------------
+LT :
+
+Šiame darbe aptariami DNR metilinimo duomenų vizualizavimo sunkumai ir
+pateikiami duomenų atvaizdavimo pavyzdžiai pritaikyti realiems duomenims, taip pat
+atvaizdavimo rekomendacijos.
+
+-----
+EN :
+
+In this coursework it is discussed about the hardship of visualizing DNA methylation data and presented visualized examples for real data as well as presented recommendations for plotting.
+
+------------
